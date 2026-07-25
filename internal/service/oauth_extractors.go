@@ -73,3 +73,29 @@ func githubExtractor(client *http.Client, ctx context.Context, _ string) (*model
 
 	return &user, nil
 }
+
+type YandexUserinfoResponse struct {
+	ID           string `json:"id"`
+	Login        string `json:"login"`
+	DefaultEmail string `json:"default_email"`
+}
+
+func yandexExtractor(client *http.Client, ctx context.Context, _ string) (*model.Claims, error) {
+	userInfo, err := simpleReq[YandexUserinfoResponse](client, ctx, "https://login.yandex.ru/info", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// NOTE: when Yandex is configured to give you only e-mail, reply looks like this:
+	// {"id": "<numbers>", "login": "<username>", "client_id": "<***>", "default_email": "<username>@yandex.com", "emails": ["<username>@yandex.com"], "psuid": "<***>"}
+
+	if userInfo.DefaultEmail == "" {
+		return nil, errors.New("no email found")
+	}
+
+	return &model.Claims{
+		Sub:                userInfo.ID,
+		Email:              userInfo.DefaultEmail,
+		PreferredUsername:  userInfo.Login,
+	}, nil
+}
