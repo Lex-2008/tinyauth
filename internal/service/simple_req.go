@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
 
 func simpleReq[T any](client *http.Client, ctx context.Context, url string, headers map[string]string) (*T, error) {
@@ -38,6 +40,8 @@ func simpleReq[T any](client *http.Client, ctx context.Context, url string, head
 	if err != nil {
 		return nil, err
 	}
+
+	log.Debug().Str("url", url).RawJSON("body", body).Msg("OAuth userinfo response")
 
 	err = json.Unmarshal(body, &decodedRes)
 	if err != nil {
