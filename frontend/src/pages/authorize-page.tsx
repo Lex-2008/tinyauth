@@ -103,7 +103,7 @@ export const AuthorizePage = () => {
     isOidc &&
     screenParams.oidc_ticket !== undefined &&
     screenParams.oidc_scope !== undefined &&
-    screenParams.oidc_prompt !== "login";
+    screenParams.oidc_prompt === "none";
 
   const { mutate: authorizeMutate, isPending: authorizePending } = useMutation({
     mutationFn: () => {
